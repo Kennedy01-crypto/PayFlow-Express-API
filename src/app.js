@@ -1,6 +1,7 @@
 //import expree js
 import express from "express";
 import DBconnect from "./config/db.js";
+import ApplicationRputes from "./routes/routes.js";
 
 //declare port
 const PORT = process.env.PORT || 8000;
@@ -11,23 +12,7 @@ const app = express();
 app.use(express.json());
 
 //routes
-app.get("/", async (req, res) => res.send("Hello World"));
-
-//check db status
-app.get("/db", async (req, res) => {
-  try {
-    const db = app.locals.db;
-    if (!db) {
-      res.status(400).json({ message: `DB not found` });
-    }
-    res
-      .status(200)
-      .json({ message: `DB connected. Database name:${db.databaseName}` });
-  } catch (err) {
-    console.error({ message: `DB not connected` });
-    res.status(400).json({ message: `DB not connected` });
-  }
-});
+app.use("/api/v1", ApplicationRputes);
 
 //error handling middelware
 app.use((err, req, res, next) => {
@@ -43,7 +28,7 @@ DBconnect()
 
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
-      console.log(`Access the Blog Application at http://localhost:${PORT}`);
+      console.log(`Access the Application at http://localhost:${PORT}`);
     });
   })
   .catch((err) => {

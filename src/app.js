@@ -11,7 +11,23 @@ const app = express();
 app.use(express.json());
 
 //routes
-app.get("/", (req, res) => res.send("Hello World"));
+app.get("/", async (req, res) => res.send("Hello World"));
+
+//check db status
+app.get("/db", async (req, res) => {
+  try {
+    const db = app.locals.db;
+    if (!db) {
+      res.status(400).json({ message: `DB not found` });
+    }
+    res
+      .status(200)
+      .json({ message: `DB connected. Database name:${db.databaseName}` });
+  } catch (err) {
+    console.error({ message: `DB not connected` });
+    res.status(400).json({ message: `DB not connected` });
+  }
+});
 
 //error handling middelware
 app.use((err, req, res, next) => {

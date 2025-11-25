@@ -1,32 +1,75 @@
 //import express
 import express from "express";
 
-//Daatabase
+//Database
 import DBconnect from "./config/db.js";
 import ApplicationRoutes from "./routes/userRoutes.js";
 
-//declare port
+//others
+import dotenv from "dotenv";
+import AppError from "./config/AppError.js";
+import globalErrorHandler from "./config/AppError.js";
+
+//1. Load Env variables
+dotenv.config();
+
+//2. declare port
 const PORT = process.env.PORT || 8000;
 
+// 3. Innitiate an express application instance
 const app = express();
 
-// middleware
-app.use(express.json());
+// 4. middleware
+app.use(express.json()); // Body Json parser
 
-//conect to database
+// 5. conect to database
 DBconnect();
 
-//routes
-app.use("/api/v1", ApplicationRoutes);
+/**
+ * Routes
+ * Error handling
+ * Other Application Confogurations
+ */
 
-//error handling middelware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: "Something went wrong!" });
+//** */. Root route
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "📈 PayFlow API is running!" });
+  console.log("📈 PayFlow API is running!");
 });
 
-//app listener using the db connect function
-app.listen(PORT, () => {
+//1. import routes here
+app.use("/api/v1", ApplicationRoutes);
+
+//2. Midlleware for unhandlled routes
+app.use("/*path", (req, res, next) => {
+  next(new AppError(`Cant find ${req.originalUrl} on this server! `, 404));
+});
+
+//3. global error handling middleware
+app.use(globalErrorHandler);
+
+//4. Start Server
+const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Access the Application at http://localhost:${PORT}`);
+});
+
+//5 catch synchronous uncaught exceptions
+process.on("uncaughtException", (err) => {
+  console.error("UNCAUGHT EXCEPTION! 💥 Shutting Down...");
+  console.error(err.name, err.message, err.stack);
+  //Gracefully close server, then exit process
+  server.close(() => {
+    process.exit(1);
+  });
+});
+
+//6. catch asynchronous unhandled promise rejections
+process.on("unhandledRejection", (err) => {
+  console.error("UNHANDLED REJECTION! 💥 Shutting Down...");
+  console.error(err.name, err.message, err.stack);
+  //gracefully close server, then exit process
+  server.close(() => {
+    process.exit(1);
+  });
 });

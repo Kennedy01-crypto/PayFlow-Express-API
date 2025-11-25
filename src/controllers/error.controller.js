@@ -4,22 +4,22 @@ import AppError from "../config/AppError.js";
 //1. Cast Error
 const handleCastError = (err) => {
   const message = `CastError: Invalid ${err.path}: ${err.value}`;
-  return new AppError(message, 400);
+  return new AppError(400, message);
 };
 
 //2: Validation Error
 const handleValidationError = (err) => {
   const errors = Object.values(err.errors).map((el) => el.message);
   const message = `Invalid input data; ${errors.join(". ")}`;
-  return new AppError(message, 400);
+  return new AppError(400, message);
 };
 
 //3. Duplicate Errors
-const handleDuplicateDieldDB = (err) => {
+const handleDuplicateFieldDB = (err) => {
   //Extract value from the error
   const value = err.keyValue[Object.keys(err.keyValue)[0]];
   const message = `Duplicate field value: "${value}". Please use another value!`;
-  return new AppError(message, 400);
+  return new AppError(400, message);
 };
 
 const sendErrorDev = (err, res) => {
@@ -52,16 +52,11 @@ const globalErrorHandler = (err, req, res, next) => {
   err.status = err.status || "error";
 
   if (process.env.NODE_ENV === "development") {
-    let error = {
-      ...err,
-      name: err.name,
-      message: err.message,
-      stack: err.stack,
-    };
-    if (error.name === "CastError") error = handleCastError(error);
-    if (error.code === 11000) error = handleDuplicateDieldDB(error);
-    if (error.name === "ValidationError") error = handleValidationError(error);
-    sendErrorDev(error, res);
+    if (err.code === 11000) {
+      err = handleDuplicateFieldDB(err);
+    }
+    if (err.name === "ValidationError") err = handleValidationError(err);
+    sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === "production") {
     let error = {
       ...err,
@@ -70,7 +65,7 @@ const globalErrorHandler = (err, req, res, next) => {
       code: err.code,
     };
     if (error.name === "CastError") error = handleCastError(error);
-    if (error.code === 11000) error = handleDuplicateDieldDB(error);
+    if (error.code === 11000) error = handleDuplicateFieldDB(error);
     if (error.name === "ValidationError") error = handleValidationError(error);
     sendErrorProd(error, res);
   }

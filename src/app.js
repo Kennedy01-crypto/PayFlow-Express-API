@@ -1,5 +1,6 @@
 //import express
 import express from "express";
+import morgan from "morgan";
 
 //Database and Routes
 import DBconnect from "./config/db.js";
@@ -18,6 +19,14 @@ const PORT = process.env.PORT || 8000;
 
 // 3. Innitiate an express application instance
 const app = express();
+
+/**
+ * if in development log using morgan
+ * 
+ */
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
+}
 
 // 4. middleware
 app.use(express.json()); // Body Json parser

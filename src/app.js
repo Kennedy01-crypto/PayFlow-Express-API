@@ -3,7 +3,7 @@ import express from "express";
 
 //Daatabase
 import DBconnect from "./config/db.js";
-import ApplicationRoutes from "./routes/routes.js";
+import ApplicationRoutes from "./routes/userRoutes.js";
 
 //declare port
 const PORT = process.env.PORT || 8000;

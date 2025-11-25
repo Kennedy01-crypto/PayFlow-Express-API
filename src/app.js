@@ -1,14 +1,14 @@
 //import express
 import express from "express";
 
-//Database
+//Database and Routes
 import DBconnect from "./config/db.js";
 import ApplicationRoutes from "./routes/userRoutes.js";
 
 //others
 import dotenv from "dotenv";
 import AppError from "./config/AppError.js";
-import globalErrorHandler from "./config/AppError.js";
+import globalErrorHandler from "./controllers/error.controller.js";
 
 //1. Load Env variables
 dotenv.config();

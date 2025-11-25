@@ -1,4 +1,4 @@
-import AppError from "../config/AppError";
+import AppError from "../config/AppError.js";
 
 // Global error handling
 //1. Cast Error
@@ -48,7 +48,7 @@ const sendErrorProd = (err, res) => {
 
 const globalErrorHandler = (err, req, res, next) => {
   console.log(err); //remove before deployment
-  err.statusCode = err.statusCode || 5000;
+  err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
 
   if (process.env.NODE_ENV === "development") {

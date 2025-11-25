@@ -42,11 +42,10 @@ const baseUserSchema = new mongoose.Schema(
 );
 
 // Password hashing
-baseUserSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+baseUserSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  next();
 });
 
 // Compare password
@@ -62,3 +61,5 @@ baseUserSchema.virtual("fullName").get(function () {
 });
 
 const User = mongoose.model("User", baseUserSchema);
+
+export default User;
